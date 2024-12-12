@@ -3,10 +3,6 @@ USER1ADDR=$(shell agd keys show user1 -a --keyring-backend="test")
 ACCT_ADDR=$(USER1ADDR)
 BLD=000000ubld
 
-AGENT_ADDR=agoric1vl6rhhjj57npl0c0kypvuz7zhnjrvevtqf8kt8
-
-USERADDR=agoric12n6dapqwszh39y24kpc3gty7eeudnzm2ank89c
-
 ATOM_DENOM=ibc/BA313C4A19DFBF943586C0387E6B11286F9E416B4DD27574E6909CABE0E342FA
 ATOM=000000$(ATOM_DENOM)
 
@@ -24,10 +20,6 @@ GAS_ADJUSTMENT=1.2
 SIGN_BROADCAST_OPTS=--keyring-backend=test --chain-id=$(CHAINID) \
 		--gas=auto --gas-adjustment=$(GAS_ADJUSTMENT) \
 		--yes -b block
-
-# provisionWallet:
-# 	agd tx swingset provision-one <nickname> <address> [<power-flag>[,...]] [flags]
-
 
 mint100:
 	make FUNDS=1000$(ATOM) fund-acct
@@ -54,11 +46,6 @@ fund-acct:
 	  -o json >,tx.json
 	jq '{code: .code, height: .height}' ,tx.json
 
-fund-acct-agent:
-	agd tx bank send validator $(AGENT_ADDR) $(FUNDS) \
-	  $(SIGN_BROADCAST_OPTS) \
-	  -o json >,tx.json
-	jq '{code: .code, height: .height}' ,tx.json
 
 gov-q:
 	agd query gov proposals --output json | \
@@ -87,23 +74,7 @@ print-key: /root/.agoric/user1.key
 	@agd keys show user1 -a --keyring-backend="test"
 	@echo
 
-start-contract: start-price-authority start-contract-onramp  
-
-start-contract-onramp:
-	yarn node scripts/deploy-contract.js \
-		--install src/onramp.contract.js \
-		--eval src/platform-goals/board-aux.core.js \
-		--eval src/onramp.proposal.js
-
-start-contract-gimix:
-	yarn node scripts/deploy-contract.js \
-		--install src/gimix.contract.js \
-		--eval src/gimix.proposal.js
-
-start-contract-zend:
-	yarn node scripts/deploy-contract.js \
-		--install src/zend.contract.js  \
-		--eval src/zend.proposal.js
+start-contract: start-price-authority 
 
 start-price-authority: 
 	yarn node scripts/deploy-contract.js \
@@ -123,29 +94,6 @@ start-price-authority:
 # Dependencies to re-run core eval when source changes
 # NOTE: manually updated
 
-# bundles/deploy-onramp.js: src/onramp.proposal.js
-# 	@echo '{"up-to-date": true}'
-
-# bundles/deploy-gimix.js: src/gimix.proposal.js
-# 	@echo '{"up-to-date": true}'
-
 clean:
 	@rm -rf bundles/
-
-# -mpesa-contract:
-# 	@echo "Sending M-PESA message to the contract..."
-# 	@MPESA_MESSAGE="ABC123 Confirmed. Ksh1,000.00 sent to John Doe on 01/01/23 at 12:00 PM" && \
-# 	ENCODED_MESSAGE=$$(echo -n "$$MPESA_MESSAGE" | base64) && \
-# 	OFFER_CONFIG='{"id":"processMpesaMessage","invitationSpec":{"source":"contract","instancePath":["mpesaParser"],"publicInvitationMaker":"makeProcessInvitation"},"proposal":{"give":{"Message":"'$$ENCODED_MESSAGE'"}}}' && \
-# 	WALLET_callACTION='{"method":"executeOffer","offer":'$$OFFER_CONFIG'}' && \
-# 	MARSHALLED_ACTION=$$(echo -n "$$WALLET_ACTION" | jq -c -R '{"body": ("#" + .), "slots": []}' | jq -c -R .) && \
-# 	agd tx swingset wallet-action \
-# 		--allow-spend "$$MARSHALLED_ACTION" \
-# 		--chain-id=$(CHAINID) \
-# 		--from=user1 \
-# 		--gas=auto \
-# 		--gas-adjustment=$(GAS_ADJUSTMENT) \
-# 		-y \
-# 		$(SIGN_BROADCAST_OPTS)
-# 	@echo "Message sent to the contract."
 
