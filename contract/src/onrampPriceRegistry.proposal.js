@@ -75,8 +75,6 @@ export const startPriceRegistry = async (powers, config) => {
 
   const terms = harden({ namesByAddress });
   
-  // const istIssuer = await E(agoricNames).lookup('issuer', 'IST');
-  // const issuerKeywordRecord = harden({ Stable: istIssuer });
   // @ts-expect-error
   const storageNode = await E(chainStorage).makeChildNode(contractName);
 
@@ -111,14 +109,10 @@ export const startPriceRegistry = async (powers, config) => {
   const istIssuer = await E(agoricNames).lookup('issuer', 'IST');
 
   const bldIssuer =  await E(agoricNames).lookup('issuer', 'BLD');
-  console.log('instance is ', instance );
-  console.log('public facet is ', publicFacet);
   const bldBrand =  await E(bldIssuer).getBrand();
 
-  console.log('kesh brand is ', bldBrand);
 
   const istBrand =  await E(istIssuer).getBrand();
-   console.log('ist brand', istBrand);
   // @ts-ignore
   const priceAuthority  = await E(publicFacet).registerPricePair(istBrand, bldBrand);
 
